@@ -14,7 +14,7 @@ type Gain struct {
 
 type Purchase struct {
 	Name     string
-	From     string
+	Seller   string
 	Category string
 	Cost     float64
 	Date     string
