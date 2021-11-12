@@ -1,7 +1,8 @@
-package main
+package backend
 
 import (
-//"fmt"
+	"fmt"
+	"strings"
 )
 
 type Gain struct {
@@ -40,4 +41,25 @@ func (w *Wallet) CountTotalCategories() map[string]int {
 		categoriesCount[purchase.Category]++
 	}
 	return categoriesCount
+}
+
+// Convert Purchases (slice Purchase) into slice of slice string,
+// for using with the gui's table widget
+func (w *Wallet) ConvertToSliceOfSliceString() [][]string {
+	table := [][]string{
+		{"Name", "Seller", "Category", "Cost", "Date"},
+	}
+	for _, item := range w.Purchases {
+		purchaseStr := fmt.Sprintf(
+			"%s,%s,%s,%.2f,%s",
+			item.Name,
+			item.Seller,
+			item.Category,
+			item.Cost,
+			item.Date,
+		)
+		purchaseSlice := strings.Split(purchaseStr, ",")
+		table = append(table, purchaseSlice)
+	}
+	return table
 }
