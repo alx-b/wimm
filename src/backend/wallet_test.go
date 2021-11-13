@@ -5,24 +5,26 @@ import (
 	"reflect"
 	"sort"
 	"testing"
+
+	"github.com/alx-b/wimm/src/database"
 )
 
 func TestAddingPurchaseCost(t *testing.T) {
 	t.Run("Get total purchase cost", func(t *testing.T) {
-		wallet := Wallet{
-			Purchases: []Purchase{
-				{Name: "something1", Cost: 50.25},
-				{Name: "something2", Cost: 50.25},
-			},
+		wallet := Wallet{}
+		purchases := []database.PurchaseOutDB{
+			{Name: "something1", Cost: 50.25},
+			{Name: "something2", Cost: 50.25},
 		}
-		got := wallet.TotalPurchaseCost()
+		got := wallet.TotalPurchaseCost(purchases)
 		want := 100.50
 		assertFloatEqual(t, got, want)
 
 	})
 	t.Run("Get total purchase cost when there is no purchase", func(t *testing.T) {
 		wallet := Wallet{}
-		got := wallet.TotalPurchaseCost()
+		purchases := []database.PurchaseOutDB{}
+		got := wallet.TotalPurchaseCost(purchases)
 		want := 0.0
 		assertFloatEqual(t, got, want)
 	})
@@ -30,17 +32,16 @@ func TestAddingPurchaseCost(t *testing.T) {
 
 func TestCountTotalCategories(t *testing.T) {
 	t.Run("Get total of all categories", func(t *testing.T) {
-		wallet := Wallet{
-			Purchases: []Purchase{
-				{Name: "something1", Category: "clothes"},
-				{Name: "something2", Category: "food"},
-				{Name: "something3", Category: "rent"},
-				{Name: "something4", Category: "clothes"},
-				{Name: "something5", Category: "game"},
-				{Name: "something6", Category: "game"},
-			},
+		wallet := Wallet{}
+		purchases := []database.PurchaseOutDB{
+			{Name: "something1", Tag: "clothes"},
+			{Name: "something2", Tag: "food"},
+			{Name: "something3", Tag: "rent"},
+			{Name: "something4", Tag: "clothes"},
+			{Name: "something5", Tag: "game"},
+			{Name: "something6", Tag: "game"},
 		}
-		got := wallet.CountTotalCategories()
+		got := wallet.CountTotalTags(purchases)
 		want := map[string]int{
 			"clothes": 2,
 			"food":    1,
@@ -51,7 +52,8 @@ func TestCountTotalCategories(t *testing.T) {
 	})
 	t.Run("Get total of all categories when empty", func(t *testing.T) {
 		wallet := Wallet{}
-		got := wallet.CountTotalCategories()
+		purchases := []database.PurchaseOutDB{}
+		got := wallet.CountTotalTags(purchases)
 		want := map[string]int{}
 		assertMapEqual(t, got, want)
 	})
@@ -59,23 +61,32 @@ func TestCountTotalCategories(t *testing.T) {
 
 func TestConvertToSliceOfSliceString(t *testing.T) {
 	t.Run("Convert slice of struct Purchase into slice of string", func(t *testing.T) {
-		wallet := Wallet{
-			Purchases: []Purchase{
-				{Name: "name1", Seller: "some1", Category: "clothing", Cost: 100.00, Date: "10.11.2021"},
-				{Name: "name2", Seller: "some2", Category: "food", Cost: 200.00, Date: "20.11.2021"},
-				{Name: "name3", Seller: "some3", Category: "rent", Cost: 300.00, Date: "25.11.2021"},
-				{Name: "name4", Seller: "some4", Category: "clothing", Cost: 400.00, Date: "25.11.2021"},
-			},
+		wallet := Wallet{}
+		purchases := []database.PurchaseOutDB{
+			{Name: "name1", Seller: "some1", Tag: "clothing", Cost: 100.00, Date: "10.11.2021"},
+			{Name: "name2", Seller: "some2", Tag: "food", Cost: 200.00, Date: "20.11.2021"},
+			{Name: "name3", Seller: "some3", Tag: "rent", Cost: 300.00, Date: "25.11.2021"},
+			{Name: "name4", Seller: "some4", Tag: "clothing", Cost: 400.00, Date: "25.11.2021"},
 		}
-		got := wallet.ConvertToSliceOfSliceString()
+		got := wallet.ConvertToSliceOfSliceString(purchases)
 		want := [][]string{
-			{"Name", "Seller", "Category", "Cost", "Date"},
+			{"Name", "Seller", "Tag", "Cost", "Date"},
 			{"name1", "some1", "clothing", "100.00", "10.11.2021"},
 			{"name2", "some2", "food", "200.00", "20.11.2021"},
 			{"name3", "some3", "rent", "300.00", "25.11.2021"},
 			{"name4", "some4", "clothing", "400.00", "25.11.2021"},
 		}
 		assertSliceOfSliceStringEqual(t, got, want)
+
+	})
+}
+
+func TestSubstractBudgetWithTotalPurchase(t *testing.T) {
+	t.Run("Substract Budget with total purchase", func(t *testing.T) {
+		wallet := Wallet{}
+		got := wallet.GetLeftover(1999.45, 1000.00)
+		want := 999.45
+		assertFloatEqual(t, got, want)
 
 	})
 }
