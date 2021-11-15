@@ -9,6 +9,22 @@ import (
 	"github.com/alx-b/wimm/src/database"
 )
 
+func TestAddPurchaseToDatabase(t *testing.T) {
+	t.Run("Add a purchase to database", func(t *testing.T) {
+		wallet := CreateWallet(":memory:")
+		purchase := []string{"name1", "some1", "tag1", "100.00", "date"}
+		got := wallet.AddPurchaseToDatabase(purchase)
+
+		switch got {
+		case ErrCouldNotConvertToFloat:
+			t.Errorf("cannot convert to float")
+		case nil:
+		default:
+			t.Errorf("default error")
+		}
+	})
+}
+
 func TestAddingPurchaseCost(t *testing.T) {
 	t.Run("Get total purchase cost", func(t *testing.T) {
 		wallet := Wallet{}

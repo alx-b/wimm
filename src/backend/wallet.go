@@ -2,10 +2,21 @@ package backend
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/alx-b/wimm/src/database"
 )
+
+const (
+	ErrCouldNotConvertToFloat = WalletError("Field needs to be a number.")
+)
+
+type WalletError string
+
+func (e WalletError) Error() string {
+	return string(e)
+}
 
 type Wallet struct {
 	db database.Database
@@ -21,15 +32,39 @@ type WalletInterface interface {
 	ConvertToSliceOfSliceString(purchases []database.PurchaseOutDB) [][]string
 }
 */
-func CreateWallet() Wallet {
-	db := database.CreateDB("testing-test.db")
+
+// Create database and return it as Wallet struct
+func CreateWallet(filePath string) Wallet {
+	db := database.CreateDB(filePath)
 	return Wallet{db: db}
 }
 
-func (w *Wallet) CloseDatabaseConnection() {
-	w.db.CloseConnection()
+// Close connection to database
+func (w *Wallet) CloseDatabaseConnection() error {
+	return w.db.CloseConnection()
 }
 
+// Convert string to float and send data to database
+func (w *Wallet) AddPurchaseToDatabase(purchase []string) error {
+	convCost, err := strconv.ParseFloat(purchase[3], 64)
+
+	if err != nil {
+		return ErrCouldNotConvertToFloat
+	}
+
+	convPurchase := database.PurchaseInDB{
+		Name:   purchase[0],
+		Seller: purchase[1],
+		Tag:    purchase[2],
+		Cost:   convCost,
+		Date:   purchase[4],
+	}
+	err = w.db.AddPurchase(convPurchase)
+
+	return err
+}
+
+// Get all purchases from Database
 func (w *Wallet) GetPurchases() []database.PurchaseOutDB {
 	purchases, err := w.db.GetPurchases()
 	if err != nil {
