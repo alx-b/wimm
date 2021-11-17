@@ -96,6 +96,15 @@ func (w *Wallet) CountTotalTags(purchases []database.PurchaseOutDB) map[string]i
 	return categoriesCount
 }
 
+// Get total spending of each category/tag
+func (w *Wallet) CountTotalSpendingPerTag(purchases []database.PurchaseOutDB) map[string]float64 {
+	tagSpendings := map[string]float64{}
+	for _, purchase := range purchases {
+		tagSpendings[purchase.Tag] += purchase.Cost
+	}
+	return tagSpendings
+}
+
 // Convert Purchases (slice Purchase) into slice of slice string,
 // for using with the gui's table widget
 func (w *Wallet) ConvertToSliceOfSliceString(purchases []database.PurchaseOutDB) [][]string {

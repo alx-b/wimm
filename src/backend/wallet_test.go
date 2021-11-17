@@ -46,8 +46,8 @@ func TestAddingPurchaseCost(t *testing.T) {
 	})
 }
 
-func TestCountTotalCategories(t *testing.T) {
-	t.Run("Get total of all categories", func(t *testing.T) {
+func TestCountTotalTags(t *testing.T) {
+	t.Run("Get total of all tags", func(t *testing.T) {
 		wallet := Wallet{}
 		purchases := []database.PurchaseOutDB{
 			{Name: "something1", Tag: "clothes"},
@@ -66,12 +66,35 @@ func TestCountTotalCategories(t *testing.T) {
 		}
 		assertMapEqual(t, got, want)
 	})
-	t.Run("Get total of all categories when empty", func(t *testing.T) {
+	t.Run("Get total of all tags when empty", func(t *testing.T) {
 		wallet := Wallet{}
 		purchases := []database.PurchaseOutDB{}
 		got := wallet.CountTotalTags(purchases)
 		want := map[string]int{}
 		assertMapEqual(t, got, want)
+	})
+}
+
+func TestCountSpendingsPerTag(t *testing.T) {
+	t.Run("Get total spendings per tag", func(t *testing.T) {
+		wallet := Wallet{}
+		purchases := []database.PurchaseOutDB{
+			{Name: "something1", Tag: "clothes", Cost: 1000.00},
+			{Name: "something2", Tag: "food", Cost: 500.00},
+			{Name: "something3", Tag: "rent", Cost: 200.00},
+			{Name: "something4", Tag: "clothes", Cost: 300.00},
+			{Name: "something5", Tag: "game", Cost: 100.00},
+			{Name: "something6", Tag: "game", Cost: 200.00},
+		}
+		got := wallet.CountTotalSpendingPerTag(purchases)
+		want := map[string]float64{
+			"clothes": 1300.00,
+			"food":    500.00,
+			"rent":    200.00,
+			"game":    300.00,
+		}
+		assertMapFloatEqual(t, got, want)
+
 	})
 }
 
@@ -130,6 +153,25 @@ func assertMapEqual(t testing.TB, got, want map[string]int) {
 	}
 	for keyWant, valueWant := range want {
 		keyValueWant = append(keyValueWant, fmt.Sprintf("%s:%d", keyWant, valueWant))
+	}
+
+	sort.Strings(keyValueGot)
+	sort.Strings(keyValueWant)
+
+	if !reflect.DeepEqual(keyValueGot, keyValueWant) {
+		t.Errorf("got %v want %v", got, want)
+	}
+}
+func assertMapFloatEqual(t testing.TB, got, want map[string]float64) {
+	t.Helper()
+	keyValueGot := []string{}
+	keyValueWant := []string{}
+
+	for keyGot, valueGot := range got {
+		keyValueGot = append(keyValueGot, fmt.Sprintf("%s:%.2f", keyGot, valueGot))
+	}
+	for keyWant, valueWant := range want {
+		keyValueWant = append(keyValueWant, fmt.Sprintf("%s:%.2f", keyWant, valueWant))
 	}
 
 	sort.Strings(keyValueGot)
