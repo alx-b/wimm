@@ -63,3 +63,28 @@ func (d *Database) GetPurchases() ([]PurchaseOutDB, error) {
 	}
 	return list, nil
 }
+
+// Get all purchases of a specific year from database
+func (d *Database) GetPurchasesOfSpecificYear(year string) ([]PurchaseOutDB, error) {
+	rows, err := d.conn.Query("SELECT * FROM purchase WHERE date LIKE ?", fmt.Sprintf("%s%%", year))
+
+	if err != nil {
+		return nil, fmt.Errorf("%s: %s", ErrCouldNotQueryDatabase, err.Error())
+	}
+
+	list := []PurchaseOutDB{}
+
+	for rows.Next() {
+		purchase := PurchaseOutDB{}
+		rows.Scan(
+			&purchase.Id,
+			&purchase.Name,
+			&purchase.Seller,
+			&purchase.Tag,
+			&purchase.Cost,
+			&purchase.Date,
+		)
+		list = append(list, purchase)
+	}
+	return list, nil
+}

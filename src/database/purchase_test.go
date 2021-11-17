@@ -85,6 +85,34 @@ func TestAddPurchase(t *testing.T) {
 	})
 }
 
+func TestGetPurchaseOfSpecificYear(t *testing.T) {
+	db := CreateDB(":memory:")
+	defer db.CloseConnection()
+	db.AddPurchase(PurchaseInDB{Name: "name1", Seller: "", Tag: "", Cost: 25.25, Date: "2020.10.10"})
+	db.AddPurchase(PurchaseInDB{Name: "name2", Seller: "", Tag: "", Cost: 30.50, Date: "2019.10.11"})
+	db.AddPurchase(PurchaseInDB{Name: "name3", Seller: "", Tag: "", Cost: 25.50, Date: "2020.11.11"})
+
+	t.Run("Get Purchase of specific year", func(t *testing.T) {
+		got, err := db.GetPurchasesOfSpecificYear("2020")
+		want := []PurchaseOutDB{
+			{
+				Id:   1,
+				Name: "name1",
+				Cost: 25.25,
+				Date: "2020.10.10",
+			},
+			{
+				Id:   3,
+				Name: "name3",
+				Cost: 25.50,
+				Date: "2020.11.11",
+			},
+		}
+		assertNoError(t, err)
+		assertPurchaseListDeepEqual(t, got, want)
+	})
+}
+
 func assertNoError(t testing.TB, err error) {
 	if err != nil {
 		t.Errorf("%s", err.Error())
