@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/alx-b/wimm/src/database"
 )
@@ -19,7 +20,9 @@ func (e WalletError) Error() string {
 }
 
 type Wallet struct {
-	db database.Database
+	Year int
+	Date time.Month
+	db   database.Database
 }
 
 /*
@@ -36,7 +39,7 @@ type WalletInterface interface {
 // Create database and return it as Wallet struct
 func CreateWallet(filePath string) Wallet {
 	db := database.CreateDB(filePath)
-	return Wallet{db: db}
+	return Wallet{db: db, Date: time.Now().Month(), Year: time.Now().Year()}
 }
 
 // Close connection to database
@@ -124,4 +127,38 @@ func (w *Wallet) ConvertToSliceOfSliceString(purchases []database.PurchaseOutDB)
 		table = append(table, purchaseSlice)
 	}
 	return table
+}
+
+// Get only purchases of a specific month out of the yearly purchase
+func (w *Wallet) GetCurrentMonthPurchases(yearlyPurchases []database.PurchaseOutDB) []database.PurchaseOutDB {
+	monthlyPurchases := []database.PurchaseOutDB{}
+	for _, purchase := range yearlyPurchases {
+		if strings.Contains(purchase.Date, fmt.Sprintf(".%d.", w.Date)) {
+			monthlyPurchases = append(monthlyPurchases, purchase)
+		}
+	}
+	return monthlyPurchases
+}
+
+// Call from the time library, time .Now() .Month()
+func (w *Wallet) GetMonth() time.Month {
+	return time.Now().Month()
+}
+
+// Cycle throught month backward
+func (w *Wallet) PrevMonth() {
+	if w.Date > 1 {
+		w.Date--
+	} else {
+		w.Date = time.Month(12)
+	}
+}
+
+// Cycle throught month forward
+func (w *Wallet) NextMonth() {
+	if w.Date < 12 {
+		w.Date++
+	} else {
+		w.Date = time.Month(1)
+	}
 }
