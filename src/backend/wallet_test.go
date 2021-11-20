@@ -133,7 +133,7 @@ func TestSubstractBudgetWithTotalPurchase(t *testing.T) {
 
 func TestGetCurrentMonthPurchases(t *testing.T) {
 	t.Run("Get total of current month purchases", func(t *testing.T) {
-		wallet := Wallet{Date: time.Month(11), Year: 2021}
+		wallet := Wallet{Month: time.Month(11), Year: 2021}
 		purchases := []database.PurchaseOutDB{
 			{Name: "name1", Seller: "some1", Tag: "clothing", Cost: 100.00, Date: "2021.11.10"},
 			{Name: "name2", Seller: "some2", Tag: "food", Cost: 200.00, Date: "2021.01.20"},
@@ -165,18 +165,18 @@ func TestGetMonth(t *testing.T) {
 
 func TestPrevMonth(t *testing.T) {
 	t.Run("Get previous month", func(t *testing.T) {
-		wallet := Wallet{Date: time.Month(6)}
+		wallet := Wallet{Month: time.Month(6)}
 		wallet.PrevMonth()
-		got := wallet.Date
+		got := wallet.Month
 		want := time.Month(5)
 		if got != want {
 			t.Errorf("Got %v want %v", got, want)
 		}
 	})
 	t.Run("Get previous month if month is 1 get 12", func(t *testing.T) {
-		wallet := Wallet{Date: time.Month(1)}
+		wallet := Wallet{Month: time.Month(1)}
 		wallet.PrevMonth()
-		got := wallet.Date
+		got := wallet.Month
 		want := time.Month(12)
 		if got != want {
 			t.Errorf("Got %v want %v", got, want)
@@ -186,18 +186,18 @@ func TestPrevMonth(t *testing.T) {
 
 func TestNextMonth(t *testing.T) {
 	t.Run("Get next month", func(t *testing.T) {
-		wallet := Wallet{Date: time.Month(6)}
+		wallet := Wallet{Month: time.Month(6)}
 		wallet.NextMonth()
-		got := wallet.Date
+		got := wallet.Month
 		want := time.Month(7)
 		if got != want {
 			t.Errorf("Got %v want %v", got, want)
 		}
 	})
 	t.Run("Get next month if month is 12 get 1", func(t *testing.T) {
-		wallet := Wallet{Date: time.Month(12)}
+		wallet := Wallet{Month: time.Month(12)}
 		wallet.NextMonth()
-		got := wallet.Date
+		got := wallet.Month
 		want := time.Month(1)
 		if got != want {
 			t.Errorf("Got %v want %v", got, want)
@@ -205,7 +205,7 @@ func TestNextMonth(t *testing.T) {
 	})
 }
 
-// ASSERT HELPERS
+// ASSERTION HELPERS
 
 func assertSliceOfSliceStringEqual(t testing.TB, got, want [][]string) {
 	if !reflect.DeepEqual(got, want) {

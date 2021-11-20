@@ -20,26 +20,24 @@ func (e WalletError) Error() string {
 }
 
 type Wallet struct {
-	Year int
-	Date time.Month
-	db   database.Database
+	Year          int
+	Month         time.Month
+	MonthlyBudget float64
+	YearlyData    []database.PurchaseOutDB
+	db            database.Database
 }
-
-/*
-type WalletInterface interface {
-	CloseConnection()
-	GetPurchases() []database.PurchaseOutDB
-	TotalPurchaseCost(purchases []database.PurchaseOutDB) float64
-	GetLeftover(budget, totalPurchaseCost float64) float64
-	CountTotalTags(purchases []database.PurchaseOutDB) map[string]int
-	ConvertToSliceOfSliceString(purchases []database.PurchaseOutDB) [][]string
-}
-*/
 
 // Create database and return it as Wallet struct
 func CreateWallet(filePath string) Wallet {
 	db := database.CreateDB(filePath)
-	return Wallet{db: db, Date: time.Now().Month(), Year: time.Now().Year()}
+	yearlyData, _ := db.GetPurchasesOfSpecificYear(fmt.Sprintf("%d", time.Now().Year()))
+	return Wallet{
+		db:            db,
+		Month:         time.Now().Month(),
+		Year:          time.Now().Year(),
+		MonthlyBudget: 15000.00,
+		YearlyData:    yearlyData,
+	}
 }
 
 // Close connection to database
@@ -133,7 +131,7 @@ func (w *Wallet) ConvertToSliceOfSliceString(purchases []database.PurchaseOutDB)
 func (w *Wallet) GetCurrentMonthPurchases(yearlyPurchases []database.PurchaseOutDB) []database.PurchaseOutDB {
 	monthlyPurchases := []database.PurchaseOutDB{}
 	for _, purchase := range yearlyPurchases {
-		if strings.Contains(purchase.Date, fmt.Sprintf(".%d.", w.Date)) {
+		if strings.Contains(purchase.Date, fmt.Sprintf(".%d.", w.Month)) {
 			monthlyPurchases = append(monthlyPurchases, purchase)
 		}
 	}
@@ -147,18 +145,18 @@ func (w *Wallet) GetMonth() time.Month {
 
 // Cycle throught month backward
 func (w *Wallet) PrevMonth() {
-	if w.Date > 1 {
-		w.Date--
+	if w.Month > 1 {
+		w.Month--
 	} else {
-		w.Date = time.Month(12)
+		w.Month = time.Month(12)
 	}
 }
 
 // Cycle throught month forward
 func (w *Wallet) NextMonth() {
-	if w.Date < 12 {
-		w.Date++
+	if w.Month < 12 {
+		w.Month++
 	} else {
-		w.Date = time.Month(1)
+		w.Month = time.Month(1)
 	}
 }

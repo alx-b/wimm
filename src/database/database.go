@@ -26,8 +26,8 @@ type Database struct {
 }
 
 // Close database connection, call the sql.DB Close function
-func (d *Database) CloseConnection() {
-	d.conn.Close()
+func (d *Database) CloseConnection() error {
+	return d.conn.Close()
 }
 
 // Create file, tables and connection to database
