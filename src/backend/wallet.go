@@ -160,3 +160,22 @@ func (w *Wallet) NextMonth() {
 		w.Month = time.Month(1)
 	}
 }
+
+func (w *Wallet) sliceContains(list []string, txt string) bool {
+	for _, tag := range list {
+		if tag == txt {
+			return true
+		}
+	}
+	return false
+}
+
+func (w *Wallet) GetAllTags() []string {
+	allTags := []string{}
+	for _, tag := range w.YearlyData {
+		if !w.sliceContains(allTags, tag.Tag) {
+			allTags = append(allTags, tag.Tag)
+		}
+	}
+	return allTags
+}

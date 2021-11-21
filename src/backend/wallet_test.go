@@ -205,6 +205,53 @@ func TestNextMonth(t *testing.T) {
 	})
 }
 
+func TestSliceContains(t *testing.T) {
+	purchasesTag := []string{
+		"tag1",
+		"tag2",
+		"tag3",
+	}
+	t.Run("Check if a slice contains a specific string", func(t *testing.T) {
+		wallet := Wallet{}
+		got := wallet.sliceContains(purchasesTag, "tag2")
+		want := true
+		if got != want {
+			t.Errorf("Got %v want %v", got, want)
+		}
+
+	})
+	t.Run("Slice should not contain the specific string", func(t *testing.T) {
+		wallet := Wallet{}
+		got := wallet.sliceContains(purchasesTag, "tag5")
+		want := false
+		if got != want {
+			t.Errorf("Got %v want %v", got, want)
+		}
+	})
+}
+
+func TestGetAllTags(t *testing.T) {
+	purchases := []database.PurchaseOutDB{
+		{Name: "something1", Tag: "clothes"},
+		{Name: "something2", Tag: "food"},
+		{Name: "something3", Tag: "rent"},
+		{Name: "something4", Tag: "clothes"},
+		{Name: "something5", Tag: "game"},
+		{Name: "something6", Tag: "game"},
+	}
+	wallet := Wallet{
+		YearlyData: purchases,
+	}
+	t.Run("Get all unique tags", func(t *testing.T) {
+		got := wallet.GetAllTags()
+		want := []string{"clothes", "food", "rent", "game"}
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("Got %v want %v", got, want)
+		}
+
+	})
+}
+
 // ASSERTION HELPERS
 
 func assertSliceOfSliceStringEqual(t testing.TB, got, want [][]string) {
