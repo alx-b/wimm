@@ -35,7 +35,7 @@ func CreateWallet(filePath string) Wallet {
 		db:            db,
 		Month:         time.Now().Month(),
 		Year:          time.Now().Year(),
-		MonthlyBudget: 15000.00,
+		MonthlyBudget: 0.0,
 		YearlyData:    yearlyData,
 	}
 }
